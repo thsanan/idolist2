@@ -1,25 +1,40 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"log"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
+	"github.com/thsanan/idolist/models"
+	"github.com/thsanan/idolist/repositories"
 )
 
 func main() {
-	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"respone": Actdress{
-				ActID:   1,
-				ActName: "Marai",
-			},
-		})
-	})
+	db, err := sqlx.Open("mysql", "sandland:IntelliP24.X@tcp(203.159.94.79:3306)/idolist")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
 
-	app.Listen(":3000")
-}
+	repoAct := repositories.NewActDb(db)
 
-type Actdress struct {
-	ActID   int    `db:"act_id", json:"act_id"`
-	ActName string `db:"act_name", json:"act_name"`
+	actx := models.Actdress{
+
+		ActNameEn: "xxx",
+		ActNameJp: "xxxx",
+		Birth:     "2000-01-01",
+		Tall:      170,
+		Cup:       "D",
+		Waist:     100,
+		Hip:       100,
+		Display:   "dis",
+	}
+	act, err := repoAct.AddAct(actx)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	log.Println(act)
+
 }
