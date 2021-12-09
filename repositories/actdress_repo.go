@@ -5,11 +5,7 @@ import (
 	"github.com/thsanan/idolist/models"
 )
 
-type actdressDb struct {
-	db *sqlx.DB
-}
-
-type actdressRepo interface {
+type ActdressRepo interface {
 	AddAct(act models.Actdress) (*models.Actdress, error)
 	//Update(actId int, actRequest models.Actdress) (*models.Actdress, error)
 	//Delete(actId int) (*models.Actdress, error)
@@ -17,7 +13,11 @@ type actdressRepo interface {
 	//ActById(actId int) (*models.Actdress, error)
 }
 
-func NewActDb(db *sqlx.DB) actdressRepo {
+type actdressDb struct {
+	db *sqlx.DB
+}
+
+func NewActDb(db *sqlx.DB) ActdressRepo {
 	return actdressDb{db}
 }
 

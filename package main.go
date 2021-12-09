@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
-
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/thsanan/idolist/models"
 	"github.com/thsanan/idolist/repositories"
+	"github.com/thsanan/idolist/services"
 )
 
 func main() {
@@ -17,24 +17,26 @@ func main() {
 	}
 	defer db.Close()
 
+	app := fiber.New()
+
 	repoAct := repositories.NewActDb(db)
+	serviceAct := services.NewActressEvo(repoAct)
 
-	actx := models.Actdress{
+	app.Post("/actdress", func(c *fiber.Ctx) error {
+		actRequest := models.Actdress{}
+		c.BodyParser(&actRequest)
+		act, err := serviceAct.InsertAct(actRequest)
+		if err != nil {
+			return c.JSON(fiber.Map{
+				"message": err.Error(),
+			})
+		}
 
-		ActNameEn: "xxx",
-		ActNameJp: "xxxx",
-		Birth:     "2000-01-01",
-		Tall:      170,
-		Cup:       "D",
-		Waist:     100,
-		Hip:       100,
-		Display:   "dis",
-	}
-	act, err := repoAct.AddAct(actx)
-	if err != nil {
-		panic(err.Error())
-	}
+		return c.JSON(fiber.Map{
+			"message": act,
+		})
 
-	log.Println(act)
+	})
 
+	app.Listen(":3000")
 }
